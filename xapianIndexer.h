@@ -41,8 +41,8 @@ class XapianMetaArticle : public Article
  public:
   XapianMetaArticle(XapianIndexer* indexer) : indexer(indexer)
   {
-    ns = 'Z';
-    aid = url = "/fulltextIndex/xapian";
+    ns = 'X';
+    aid = url = "fulltext/xapian";
     title = "Xapian Fulltext Index";
     mimeType = "application/octet-stream+xapian";
   };
