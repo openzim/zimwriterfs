@@ -23,3 +23,5 @@ matrix:
   include:
     - env: PLATFORM="native_dyn"
       os: osx
+git:
+  depth: 1
