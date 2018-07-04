@@ -28,8 +28,10 @@
 #include <cerrno>
 #include <fstream>
 #include <iostream>
+#include <limits.h>
 #include <sstream>
 #include <stdexcept>
+#include <unistd.h>
 #include <vector>
 #include <memory>
 
@@ -155,30 +157,83 @@ inline bool seemsToBeHtml(const std::string& path)
   return false;
 }
 
+static std::string maybeResolveLink(const std::string& path) {
+  // TODO: The implementation can be replaced with the following snippet when
+  //       compiler support for <filesystem> is sufficient enough.
+  // std::filesystem::path p(path);
+  // if(std::filesystem::exists(p) && std::filesystem::is_symlink(p)) {
+  //   return std::filesystem::read_symlink(p);
+  // } else {
+  //   return path;
+  // }
+  for (int retry = 0; retry < 5; ++retry) {
+    struct stat path_stat;
+    if (lstat(path.c_str(), &path_stat) == -1) {
+      std::cerr << "zimwriterfs: unable to stat file at path: " << path
+                << std::endl;
+      throw(errno);
+    }
+    if (S_ISREG(path_stat.st_mode)) {
+      return path;
+    }
+    if (!S_ISLNK(path_stat.st_mode)) {
+      std::cerr << "zimwriterfs: file is neither a regular file nor a symbolic "
+                << "link: " << path << std::endl;
+      return path;
+    }
+    std::string resolved_path;
+    resolved_path.resize(path_stat.st_size + 1);
+    // Allow readlink to write st_size + 1 bytes even though we will overwrite
+    // the last byte with '\0'. This way, we can detect if the target path
+    // changed inbetween calls to lstat and readlink because we expect only
+    // st_size of bytes to be written to the buffer.
+    // The only case where link_len > st_size is true is when the target
+    // path has changed.
+    ssize_t link_len = readlink(
+        path.c_str(), &resolved_path[0], path_stat.st_size + 1);
+    if (link_len < 0) {
+      std::cerr << "zimwriterfs: unable to resolve symlink: " << path
+                << std::endl;
+      throw(errno);
+    }
+    if (link_len > path_stat.st_size) {
+      std::cerr << "zimwriterfs: symbolic link target path increased in size "
+                << "between lstat and readlink: " << path << std::endl;
+      continue;
+    }
+    resolved_path[path_stat.st_size] = '\0';
+    return resolved_path;
+  }
+  std::cerr << "zimwriterfs: unable to resolve path in 5 tries: " << path
+            << std::endl;
+  return path;
+}
+
 std::string getFileContent(const std::string& path)
 {
-  std::ifstream in(path, std::ios::binary| std::ios::ate);
-  if (in) {
-    std::string contents;
-    contents.resize(in.tellg());
-    in.seekg(0, std::ios::beg);
-    in.read(&contents[0], contents.size());
-    in.close();
-
-    /* Inflate if necessary */
-    if (inflateHtmlFlag && seemsToBeHtml(path)) {
-      try {
-        contents = inflateString(contents);
-      } catch (...) {
-        std::cerr << "Can not initialize inflate stream for: " << path
-                  << std::endl;
-      }
-    }
-    return (contents);
+  std::string resolvedPath = maybeResolveLink(path);
+  std::ifstream in(resolvedPath, std::ios::binary | std::ios::ate);
+  if (!in) {
+    std::cerr << "zimwriterfs: unable to open file at path: " << path
+              << std::endl;
+    throw(errno);
   }
-  std::cerr << "zimwriterfs: unable to open file at path: " << path
-            << std::endl;
-  throw(errno);
+  std::string contents;
+  contents.resize(in.tellg());
+  in.seekg(0, std::ios::beg);
+  in.read(&contents[0], contents.size());
+  in.close();
+
+  /* Inflate if necessary */
+  if (inflateHtmlFlag && seemsToBeHtml(path)) {
+    try {
+      contents = inflateString(contents);
+    } catch (...) {
+      std::cerr << "Can not initialize inflate stream for: " << path
+                << std::endl;
+    }
+  }
+  return (contents);
 }
 
 unsigned int getFileSize(const std::string& path)
