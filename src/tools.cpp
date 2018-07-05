@@ -183,8 +183,8 @@ static std::string maybeResolveLink(const std::string& path) {
     }
     std::string resolved_path;
     resolved_path.resize(path_stat.st_size + 1);
-    // Allow readlink to write st_size + 1 bytes even though we will overwrite
-    // the last byte with '\0'. This way, we can detect if the target path
+    // Allow readlink to write st_size + 1 bytes even though we will truncate
+    // resolved_path to st_size. This way, we can detect if the target path
     // changed inbetween calls to lstat and readlink because we expect only
     // st_size of bytes to be written to the buffer.
     // The only case where link_len > st_size is true is when the target
@@ -201,7 +201,7 @@ static std::string maybeResolveLink(const std::string& path) {
                 << "between lstat and readlink: " << path << std::endl;
       continue;
     }
-    resolved_path[path_stat.st_size] = '\0';
+    resolved_path.resize(path_stat.st_size);
     return resolved_path;
   }
   std::cerr << "zimwriterfs: unable to resolve path in 5 tries: " << path
