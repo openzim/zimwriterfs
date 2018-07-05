@@ -28,7 +28,6 @@
 #include <cerrno>
 #include <fstream>
 #include <iostream>
-#include <limits.h>
 #include <sstream>
 #include <stdexcept>
 #include <unistd.h>
