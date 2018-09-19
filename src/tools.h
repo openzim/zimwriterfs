@@ -56,6 +56,4 @@ std::string removeAccents(const std::string& text);
 
 void remove_all(const std::string& path);
 
-int isValidFile(const std::string& path);
-
 #endif  // OPENZIM_ZIMWRITERFS_TOOLS_H

@@ -605,12 +605,3 @@ void remove_all(const std::string& path)
     remove(path.c_str());
   }
 }
-
-int isValidFile(const std::string& path)
-{
-  // Stat buffer
-  struct stat p_statbuf;
-
-  // Check file status
-  return stat(path.c_str(), &p_statbuf);
-}

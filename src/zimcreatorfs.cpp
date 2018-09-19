@@ -29,6 +29,15 @@
 
 bool isVerbose();
 
+inline int isValidFile(const std::string& path) 
+{
+  // Stat buffer
+  struct stat p_statbuf;
+
+  // Check file status
+  return stat(path.c_str(), &p_statbuf);
+}
+
 std::string ZimCreatorFS::getMainPage()
 {
   return mainPage;
@@ -90,7 +99,7 @@ void ZimCreatorFS::visitDirectory(const std::string& path)
       case DT_REG:
       case DT_LNK:
         {
-          if(isValidFile(fullEntryName) == 0){
+          if(isValidFile(fullEntryName) == 0) {
             addArticle(fullEntryName);
           } else {
             std::cerr << "warning: " << fullEntryName << " is not a valid file - empty symlink?" << std::endl;
@@ -120,7 +129,7 @@ void ZimCreatorFS::visitDirectory(const std::string& path)
         struct stat s;
         if (stat(fullEntryName.c_str(), &s) == 0) {
           if (S_ISREG(s.st_mode)) {
-            if(isValidFile(fullEntryName) == 0){
+            if(isValidFile(fullEntryName) == 0) {
               addArticle(fullEntryName);
             } else {
               std::cerr << "warning: " << fullEntryName << " is not a valid file - empty symlink?" << std::endl;
