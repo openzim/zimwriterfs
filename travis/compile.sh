@@ -31,7 +31,7 @@ if [[ "${TRAVIS_OS_NAME}" == "osx" ]]
 then
   cd ..
   mkdir zimwriterfs
-  cp build/src/* ./zimwriterfs
+  cp -r build/src/* ./zimwriterfs
   npm i -g appdmg && \
   appdmg appdmg.json zimwriterfs-osx.dmg
 fi
