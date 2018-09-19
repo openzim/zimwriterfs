@@ -90,7 +90,11 @@ void ZimCreatorFS::visitDirectory(const std::string& path)
       case DT_REG:
       case DT_LNK:
         {
-          addArticle(fullEntryName);
+          if(isValidFile(fullEntryName) == 0){
+            addArticle(fullEntryName);
+          } else {
+            std::cerr << "warning: " << fullEntryName << " is not a valid file - empty symlink?" << std::endl;
+          }
         }
         break;
       case DT_DIR:
@@ -116,7 +120,11 @@ void ZimCreatorFS::visitDirectory(const std::string& path)
         struct stat s;
         if (stat(fullEntryName.c_str(), &s) == 0) {
           if (S_ISREG(s.st_mode)) {
-            addArticle(fullEntryName);
+            if(isValidFile(fullEntryName) == 0){
+              addArticle(fullEntryName);
+            } else {
+              std::cerr << "warning: " << fullEntryName << " is not a valid file - empty symlink?" << std::endl;
+            }
           } else if (S_ISDIR(s.st_mode)) {
             visitDirectory(fullEntryName);
           } else {
