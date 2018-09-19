@@ -2,6 +2,7 @@ zimwriterfs 1.3
 ===============
  * Proper support of woff2 font files
  * Added -V --version command line arguments
+ * Created file validity check to avoid empty symlinks
 
 zimwriterfs 1.2
 ===============
