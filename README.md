@@ -81,6 +81,16 @@ Install first the few common compilation tools:
 These tools should be packaged if you use a cutting edge operating
 system. If not, have a look to the "Troubleshooting" section.
 
+### macOS
+
+```bash
+brew install icu4c
+export LDFLAGS="-L/usr/local/opt/icu4c/lib"
+export CPPFLAGS="-I/usr/local/opt/icu4c/include"
+brew link icu4c --force
+```
+
+
 Compilation
 -----------
 
