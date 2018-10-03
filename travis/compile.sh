@@ -8,10 +8,10 @@ INSTALL_DIR=${BUILD_DIR}/INSTALL
 
 case ${PLATFORM} in
   "native_static")
-    MESON_OPTION="-Dstatic-linkage=true"
+    MESON_OPTION="--default-library=static"
     ;;
   "native_dyn")
-    MESON_OPTION=""
+    MESON_OPTION="--default-library=shared"
     ;;
 esac
 
