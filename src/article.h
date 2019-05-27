@@ -22,7 +22,7 @@
 #define OPENZIM_ZIMWRITERFS_ARTICLE_H
 
 #include <zim/blob.h>
-#include <zim/writer/zimcreator.h>
+#include <zim/writer/creator.h>
 #include <string>
 
 extern std::string favicon;
