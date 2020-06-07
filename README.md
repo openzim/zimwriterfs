@@ -1,5 +1,5 @@
-zimwriterfs
-===========
+zimwriterfs (migrated to zim-tools repository)
+==============================================
 
 
 [![latest release](https://img.shields.io/github/v/tag/openzim/zimwriterfs?label=latest%20release&sort=semver)](https://download.openzim.org/release/zimwriterfs/)
